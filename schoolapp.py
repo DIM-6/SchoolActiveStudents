@@ -29,11 +29,37 @@ st.markdown("""
     .download-btn-container { display: flex; justify-content: center; align-items: center; padding: 5px; }
     .stMarkdown p { font-size: 16px; line-height: 1.5;}
     .block-container { padding-top: 2rem; padding-bottom: 2rem; padding-left: 1rem; padding-right: 1rem; }
+    
+    /* Instruction Box Style */
+    .instruction-box {
+        background-color: #e8f4f8;
+        border-left: 5px solid #17a2b8;
+        padding: 15px;
+        border-radius: 5px;
+        margin-bottom: 20px;
+    }
+    .instruction-box h4 { margin-top: 0; color: #0c5460; font-weight: bold;}
+    .instruction-box ol { margin-bottom: 0; font-size: 16px; color: #0c5460; line-height: 1.6;}
 </style>
 """, unsafe_allow_html=True)
 
 st.title("🎓 Student Reports Generator")
-st.write("તમારી સ્ટુડન્ટ ડેટાની એક્સેલ ફાઈલ અપલોડ કરો અને અલગ-અલગ રિપોર્ટ્સ મેળવો.")
+
+# --- Instructions Section (માર્ગદર્શિકા) ---
+st.markdown("""
+<div class="instruction-box">
+    <h4>📌 રિપોર્ટ માટેની એક્સેલ ફાઈલ ક્યાંથી ડાઉનલોડ કરવી?</h4>
+    <ol>
+        <li>તમારી શાળાના UDISE+ પોર્ટલના લોગીનમાં જાઓ.</li>
+        <li>ડાબી બાજુની <b>Side Panel</b> માં <b>"List of All Students"</b> પર ક્લિક કરો.</li>
+        <li>તેની નીચે <b>"Active Students"</b> લખેલું હશે, તેના પર ક્લિક કરો.</li>
+        <li>તમારી સ્ક્રીન પર વિદ્યાર્થીઓની યાદી આવશે, તેની ઉપર <b>જમણી બાજુએ ખૂણામાં (Top Right Corner) "Download Excel"</b> નામનું બટન હશે.</li>
+        <li>તેના પર ક્લિક કરતા ફાઈલ ડાઉનલોડ થઈ જશે, <b>આ જ ફાઈલ તમારે નીચે અપલોડ કરવાની છે.</b></li>
+    </ol>
+</div>
+""", unsafe_allow_html=True)
+
+st.write("તમારી ડાઉનલોડ કરેલી સ્ટુડન્ટ ડેટાની એક્સેલ ફાઈલ નીચે અપલોડ કરો અને અલગ-અલગ રિપોર્ટ્સ મેળવો.")
 
 # ફાઈલ અપલોડ વિજેટ
 uploaded_file = st.file_uploader("અહીં એક્સેલ ફાઈલ (.xlsx) અપલોડ કરો", type=["xlsx", "xls"])
@@ -116,7 +142,7 @@ if uploaded_file is not None:
                         key=file_name 
                     )
 
-        # 1. APAAR Pending (Updated Action)
+        # 1. APAAR Pending
         display_report_row(
             "1. APAAR Pending + સમાન નામ", 
             len(df_report1), 
@@ -132,7 +158,7 @@ if uploaded_file is not None:
             df_report2, "2_Name_Swapped.xlsx"
         )
 
-        # 3. Verified Mismatch (Updated Action)
+        # 3. Verified Mismatch
         display_report_row(
             "3. Verified પણ નામ મિસમેચ", 
             len(df_report3), 
@@ -140,7 +166,7 @@ if uploaded_file is not None:
             df_report3, "3_Verified_Name_Mismatch.xlsx"
         )
 
-        # 4. MBU Pending (Updated Action)
+        # 4. MBU Pending
         display_report_row(
             "4. MBU Pending", 
             len(df_report4), 
@@ -148,7 +174,7 @@ if uploaded_file is not None:
             df_report4, "4_MBU_Pending.xlsx"
         )
 
-        # 5. Aadhaar Not Available (Updated Action)
+        # 5. Aadhaar Not Available
         display_report_row(
             "5. આધાર Not Available", 
             len(df_report5), 
