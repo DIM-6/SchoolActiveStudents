@@ -25,29 +25,10 @@ st.set_page_config(page_title="Student Reports Generator", page_icon="🎓", lay
 # Custom CSS for Mobile Responsive Table and Download Buttons
 st.markdown("""
 <style>
-    /* ટેબલ માટે મોબાઈલ ફ્રેન્ડલી ડીઝાઈન */
-    .stDataFrame {
-        width: 100%;
-    }
-    .download-btn-container {
-        display: flex;
-        justify-content: center;
-        align-items: center;
-        padding: 5px;
-    }
-    
-    /* સાધારણ ટેક્સ્ટ સ્ટાઈલ */
-    .stMarkdown p {
-        font-size: 16px;
-    }
-    
-    /* આખી સ્ક્રીનમાં માર્જિન સેટ કરવા */
-    .block-container {
-        padding-top: 2rem;
-        padding-bottom: 2rem;
-        padding-left: 1rem;
-        padding-right: 1rem;
-    }
+    .stDataFrame { width: 100%; }
+    .download-btn-container { display: flex; justify-content: center; align-items: center; padding: 5px; }
+    .stMarkdown p { font-size: 16px; line-height: 1.5;}
+    .block-container { padding-top: 2rem; padding-bottom: 2rem; padding-left: 1rem; padding-right: 1rem; }
 </style>
 """, unsafe_allow_html=True)
 
@@ -96,7 +77,7 @@ if uploaded_file is not None:
 
         st.success("✅ રિપોર્ટ્સ સફળતાપૂર્વક જનરેટ થઈ ગયા છે!")
         
-        # --- Summary Section (Mobile Friendly) ---
+        # --- Summary Section ---
         st.header("📊 Report Summary")
         col1, col2, col3 = st.columns(3)
         col1.metric("કુલ વિદ્યાર્થીઓ", len(df))
@@ -114,16 +95,11 @@ if uploaded_file is not None:
         st.divider()
 
         # --- Action Plan & Download Section ---
-        st.header("📌 કરવાની થતી કાર્યવાહી અને ડાઉનલોડ (Action Plan & Downloads)")
+        st.header("📌 કરવાની થતી કાર્યવાહી અને ડાઉનલોડ")
         st.write("નીચે આપેલ ટેબલમાંથી વિદ્યાર્થીઓની સંખ્યા મુજબ રિપોર્ટ ડાઉનલોડ કરો અને સામે આપેલી કાર્યવાહી પોર્ટલ પર કરો.")
-
-        # Streamlit માં ટેબલની અંદર સીધા ડાઉનલોડ બટન ન મૂકી શકાય, 
-        # તેથી આપણે દરેક રિપોર્ટ માટે એક સરસ "કાર્ડ / રો (Row)" જેવી ડીઝાઇન બનાવી છે 
-        # જે મોબાઇલમાં ટેબલ કરતા પણ વધુ સારી દેખાય છે.
 
         def display_report_row(report_name, count, action_text, df_data, file_name):
             with st.container(border=True):
-                # મોબાઈલ માટે કોલમ લેઆઉટ (માત્ર 2 કોલમ)
                 c1, c2 = st.columns([7, 3]) 
                 
                 with c1:
@@ -131,20 +107,20 @@ if uploaded_file is not None:
                     st.info(f"👉 **કાર્યવાહી:** {action_text}")
                 
                 with c2:
-                    st.markdown("<br>", unsafe_allow_html=True) # થોડી જગ્યા માટે
+                    st.markdown("<br>", unsafe_allow_html=True)
                     st.download_button(
                         label=f"📥 ડાઉનલોડ", 
                         data=convert_df_to_excel(df_data), 
                         file_name=file_name, 
                         use_container_width=True,
-                        key=file_name # Unique key for each button
+                        key=file_name 
                     )
 
-        # 1. APAAR Pending
+        # 1. APAAR Pending (Updated Action)
         display_report_row(
             "1. APAAR Pending + સમાન નામ", 
             len(df_report1), 
-            "UDISE અને આધારમાં સમાન નામ છે પણ APAAR ID જનરેટ કરવાના બાકી (Pending) છે.", 
+            "UDISE અને આધારમાં સમાન નામ છે પણ APAAR ID જનરેટ કરવાના બાકી (Pending) છે. આ બાળકોનું તરત જ APAAR ID Generate થઈ જશે એટલે તાત્કાલિક જનરેટ કરી દેવું.", 
             df_report1, "1_APAAR_Pending_Same_Name.xlsx"
         )
         
@@ -156,27 +132,27 @@ if uploaded_file is not None:
             df_report2, "2_Name_Swapped.xlsx"
         )
 
-        # 3. Verified Mismatch
+        # 3. Verified Mismatch (Updated Action)
         display_report_row(
             "3. Verified પણ નામ મિસમેચ", 
             len(df_report3), 
-            "આધાર Verify થઈ ગયેલ છે, પણ UDISE માં જે નામ છે તે સુધારવાની જરૂર છે.", 
+            "આધાર Verify થઈ ગયેલ છે, પણ UDISE માં જે નામ છે તે સુધારવાની જરૂર છે. આવા બાળકોની માહિતી તૈયાર રાખવી, જેને BRC ભવન પર સુધારો કરી શકાશે.", 
             df_report3, "3_Verified_Name_Mismatch.xlsx"
         )
 
-        # 4. MBU Pending
+        # 4. MBU Pending (Updated Action)
         display_report_row(
             "4. MBU Pending", 
             len(df_report4), 
-            "આ બાળકોના ડેટાને Revalidate કરવાની જરૂર છે.", 
+            "આ બાળકોના ડેટાને Revalidate કરવાની જરૂર છે. અને રીવેલિડેટ કર્યા પછી પણ પેન્ડિંગ આવે તો આ બાળકને આધાર સેન્ટર પર જઈ એક વાર અપડેટ કરાવવું પડશે.", 
             df_report4, "4_MBU_Pending.xlsx"
         )
 
-        # 5. Aadhaar Not Available
+        # 5. Aadhaar Not Available (Updated Action)
         display_report_row(
             "5. આધાર Not Available", 
             len(df_report5), 
-            "આ બાળકોની આધાર કાર્ડની વિગત ભરવાની બાકી છે.", 
+            "આ બાળકોની આધાર કાર્ડની વિગત ભરવાની બાકી છે. આવા બાળકની વિગત મંગાવીને આ વિગત તાત્કાલિક ભરી દેવી.", 
             df_report5, "5_Aadhaar_Not_Available.xlsx"
         )
 
