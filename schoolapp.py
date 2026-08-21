@@ -6,21 +6,16 @@ import io
 def clean_str(x):
     return str(x).strip().upper() if pd.notna(x) else ""
 
-# નવું અને સ્માર્ટ લોજીક: અટક આગળ-પાછળ ચેક કરવા માટે
 def is_name_swapped(name, target_name):
     if not name or not target_name: return False
-    
     words = name.split()
     if len(words) > 1:
-        # લોજીક 1: છેલ્લો શબ્દ (અટક) આગળ લાવીને ચેક કરો (દા.ત. DHRUVIT AMITBHAI SOLANKI -> SOLANKI DHRUVIT AMITBHAI)
+        # લોજીક 1: છેલ્લો શબ્દ (અટક) આગળ લાવીને ચેક કરો
         last_to_first = words[-1] + " " + " ".join(words[:-1])
-        
-        # લોજીક 2: પહેલો શબ્દ (અટક) પાછળ લઈ જઈને ચેક કરો (દા.ત. SOLANKI DHRUVIT AMITBHAI -> DHRUVIT AMITBHAI SOLANKI)
+        # લોજીક 2: પહેલો શબ્દ (અટક) પાછળ લઈ જઈને ચેક કરો
         first_to_last = " ".join(words[1:]) + " " + words[0]
         
-        # જો કોઈ પણ એક લોજીક સાચું પડે, તો True પરત કરો
         return target_name == last_to_first or target_name == first_to_last
-        
     return False
 
 def convert_df_to_excel(df):
@@ -67,8 +62,23 @@ uploaded_file = st.file_uploader("અહીં એક્સેલ ફાઈલ (
 if uploaded_file is not None:
     try:
         with st.spinner('ફાઈલ પ્રોસેસ થઈ રહી છે... કૃપા કરીને રાહ જુઓ...'):
+            # ફાઈલ રીડ કરવી (હેડર રો 3જી લાઈનમાં છે એટલે skiprows=2)
             df = pd.read_excel(uploaded_file, skiprows=2)
             
+            # --- 🛑 ERROR VALIDATION (ખોટી ફાઈલ ચેકિંગ) ---
+            required_columns = ['Name', 'Name As per AADHAAR', 'AADHAAR Validation Status', 'APAAR Status', 'MBU Status']
+            missing_columns = [col for col in required_columns if col not in df.columns]
+            
+            if len(missing_columns) > 0:
+                st.error("❌ **ખોટી ફાઈલ અપલોડ થઈ છે!**")
+                st.warning("તમે અપલોડ કરેલી ફાઈલમાં નીચે મુજબના જરૂરી કોલમ (હેડિંગ) મળ્યા નથી:")
+                for col in missing_columns:
+                    st.write(f"- {col}")
+                st.info("💡 કૃપા કરીને ઉપર આપેલી સૂચના મુજબ UDISE પોર્ટલમાંથી સાચી 'List of All Students' ની ફાઈલ જ અપલોડ કરો.")
+                st.stop() # જો ખોટી ફાઈલ હોય તો પ્રોગ્રામ અહીંથી જ અટકી જશે
+            # -----------------------------------------------
+
+            # ડેટા ક્લીનિંગ
             df['Name_clean'] = df['Name'].apply(clean_str)
             df['AADHAAR_Name_clean'] = df['Name As per AADHAAR'].apply(clean_str)
             
@@ -76,25 +86,33 @@ if uploaded_file is not None:
             is_verified = aadhaar_status == 'VERIFIED'
             same_name = df['Name_clean'] == df['AADHAAR_Name_clean']
             
-            # નવા લોજીકનો ઉપયોગ
+            # આગળ-પાછળ નામ ચેક કરવું
             is_swapped_series = df.apply(lambda row: is_name_swapped(row['Name_clean'], row['AADHAAR_Name_clean']), axis=1)
             
-            # Reports
+            # 1. Report: APAAR Pending
             apaar_pending_status = ['NA', 'NOT AVAILABLE', 'NAN', 'REQUESTED', 'PENDING']
             apaar_pending = df['APAAR Status'].isna() | df['APAAR Status'].astype(str).str.strip().str.upper().isin(apaar_pending_status)
-            
             df_report1 = df[is_verified & apaar_pending & same_name]
+            
+            # 2. Report: Name Swapped
             df_report2 = df[is_verified & is_swapped_series & ~same_name]
+            
+            # 3. Report: Verified Mismatch
             df_report3 = df[is_verified & (df['Name_clean'] != df['AADHAAR_Name_clean']) & ~is_swapped_series]
             
+            # 4. Report: MBU Pending
             mbu_statuses = ['MBU PENDING (AGE 5-15)', 'MBU PENDING (AGE 15 AND ABOVE)']
             df_report4 = df[df['MBU Status'].astype(str).str.strip().str.upper().isin(mbu_statuses)]
+            
+            # 5. Report: AADHAAR not available
             df_report5 = df[aadhaar_status == 'AADHAAR NOT AVAILABLE']
+            
+            # 6. Report: Validation failed
             df_report6 = df[aadhaar_status == 'VALIDATION FAILED']
 
         st.success("✅ રિપોર્ટ્સ સફળતાપૂર્વક જનરેટ થઈ ગયા છે!")
         
-        # --- Summary ---
+        # --- Summary Section ---
         st.header("📊 Report Summary")
         col1, col2, col3 = st.columns(3)
         col1.metric("કુલ વિદ્યાર્થીઓ", len(df))
@@ -111,8 +129,9 @@ if uploaded_file is not None:
         
         st.divider()
 
-        # --- Action Plan ---
+        # --- Action Plan & Download Section ---
         st.header("📌 કરવાની થતી કાર્યવાહી અને ડાઉનલોડ")
+        
         def display_report_row(report_name, count, action_text, df_data, file_name):
             with st.container(border=True):
                 c1, c2 = st.columns([7, 3]) 
@@ -137,4 +156,5 @@ if uploaded_file is not None:
         display_report_row("6. Validation Failed", len(df_report6), "આ બાળકોનું 'Name as per AADHAAR' ખોટું છે. સાચું અને લેટેસ્ટ આધાર કાર્ડ મંગાવી માહિતી સુધારવાની છે.", df_report6, "6_Validation_Failed.xlsx")
         
     except Exception as e:
-        st.error(f"ફાઈલ પ્રોસેસ કરવામાં ભૂલ આવી. કૃપા કરીને યોગ્ય ફાઈલ અપલોડ કરો. Error: {e}")
+        # જો ફાઈલ સિસ્ટમ લેવલ પર જ તૂટેલી હોય કે અન્ય કોઈ અણધારી ભૂલ આવે ત્યારે
+        st.error(f"ફાઈલ પ્રોસેસ કરવામાં અણધારી ભૂલ આવી. કૃપા કરીને ફાઈલ ચેક કરો. Error: {e}")
