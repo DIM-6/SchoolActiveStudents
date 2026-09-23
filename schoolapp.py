@@ -10,28 +10,21 @@ def is_name_swapped(name, target_name):
     if not name or not target_name: return False
     words = name.split()
     if len(words) > 1:
-        # લોજીક 1: છેલ્લો શબ્દ (અટક) આગળ લાવીને ચેક કરો
         last_to_first = words[-1] + " " + " ".join(words[:-1])
-        # લોજીક 2: પહેલો શબ્દ (અટક) પાછળ લઈ જઈને ચેક કરો
         first_to_last = " ".join(words[1:]) + " " + words[0]
-        
         return target_name == last_to_first or target_name == first_to_last
     return False
 
-# નવું લોજીક: નામમાં માત્ર 1 અક્ષરનો જ ફેરફાર હોય (સ્પેલિંગ મિસ્ટેક) ચેક કરવા
 def is_one_char_diff(name1, name2):
     if not name1 or not name2 or name1 == name2: return False
-    
     len1, len2 = len(name1), len(name2)
     if abs(len1 - len2) > 1: return False 
-    
     if len1 == len2:
         diff_count = sum(1 for a, b in zip(name1, name2) if a != b)
         return diff_count == 1
     else:
         if len1 > len2:
             name1, name2 = name2, name1
-        
         i = 0
         while i < len(name1) and name1[i] == name2[i]:
             i += 1
@@ -55,7 +48,6 @@ st.markdown("""
     .instruction-box { background-color: #e8f4f8; border-left: 5px solid #17a2b8; padding: 15px; border-radius: 5px; margin-bottom: 20px;}
     .instruction-box h4 { margin-top: 0; color: #0c5460; font-weight: bold;}
     .instruction-box ol { margin-bottom: 0; font-size: 16px; color: #0c5460; line-height: 1.6;}
-    .report-info-box { background-color: #fff3cd; border-left: 5px solid #ffc107; padding: 15px; border-radius: 5px; margin-bottom: 20px;}
 </style>
 """, unsafe_allow_html=True)
 
@@ -66,7 +58,7 @@ st.markdown("""
 <div class="instruction-box">
     <h4>📌 રિપોર્ટ માટેની એક્સેલ ફાઈલ ક્યાંથી ડાઉનલોડ કરવી?</h4>
     <ol>
-        <li>તમારી શાળાના UDISE+ પોર્ટલના લોગીનમાં જાઓ.</li>
+        <li>તમારી શાળાના UDISE+ પોર્ટલના <b>'Student Module'</b> માં લોગીન કરો.</li>
         <li>ડાબી બાજુની <b>Side Panel</b> માં <b>"List of All Students"</b> પર ક્લિક કરો.</li>
         <li>તેની નીચે <b>"Active Students"</b> લખેલું હશે, તેના પર ક્લિક કરો.</li>
         <li>તમારી સ્ક્રીન પર વિદ્યાર્થીઓની યાદી આવશે, તેની ઉપર <b>જમણી બાજુએ ખૂણામાં (Top Right Corner) "Download Excel"</b> નામનું બટન હશે.</li>
@@ -80,13 +72,13 @@ with st.expander("ℹ️ આ ટૂલની મદદથી તમને કય
     st.markdown("""
     **આ ટૂલ તમારો સમય બચાવવા માટે નીચે મુજબના ૭ અલગ-અલગ રિપોર્ટ આપોઆપ જનરેટ કરશે:**
     
-    1. **APAAR Pending:** એવા બાળકો જેમનું UDISE અને આધાર કાર્ડ બંનેમાં નામ બિલકુલ સમાન છે, પરંતુ તેમનું APAAR ID જનરેટ થવાનું બાકી છે. (આ સૌથી સહેલું કામ છે).
-    2. **નામ/અટક બદલ (Name Swapped):** એવા બાળકો જેમનું નામ અને અટક આધાર કાર્ડ અને UDISE માં આગળ-પાછળ થઈ ગયા છે. (દા.ત. પટેલ રાહુલ ની જગ્યાએ રાહુલ પટેલ).
-    3. **Verified પણ મોટો નામ મિસમેચ:** જેમનું આધાર કાર્ડ Verify તો થઈ ગયું છે, પણ બંને નામના સ્પેલિંગમાં મોટો તફાવત છે (જે BRC કક્ષાએથી સુધારવા પડે).
-    4. **MBU Pending:** જે બાળકોનું MBU (Mobile/Biometric Update) પેન્ડિંગ છે અને ડેટા Revalidate કરવાની જરૂર છે.
-    5. **આધાર Not Available:** એવા બાળકો જેમની આધાર કાર્ડની વિગત UDISE પોર્ટલ પર હજુ સુધી ભરેલી જ નથી.
-    6. **Validation Failed:** જે બાળકોનું આધાર વેરીફીકેશન ફેલ થયું છે અને જેમનું નવું આધાર કાર્ડ મંગાવી માહિતી સુધારવાની જરૂર છે.
-    7. **સ્પેલિંગમાં સામાન્ય (૧ અક્ષરની) ભૂલ:** એવા બાળકો જેમનાં નામમાં માત્ર એક જ અક્ષર (character) ની ભૂલ છે, જે UDISE માં શાળા કક્ષાએ સહેલાઈથી સુધારી શકાશે.
+    ૧. **નામ સમાન પણ APAAR Pending તેવા વિદ્યાર્થીઓ:** જેમનું UDISE અને આધાર કાર્ડમાં નામ સમાન છે પણ APAAR ID જનરેટ કરવાનું બાકી છે.
+    ૨. **નામ અને અટક આગળ પાછળ થઈ શકે તેવા વિદ્યાર્થીઓ:** જેમનું નામ અને અટક આધાર કાર્ડ અને UDISE માં આગળ-પાછળ થઈ ગયા છે.
+    ૩. **આધાર Verified છે પણ નામમાં સુધારો કરવાનો છે તેવા વિદ્યાર્થીઓ:** જેમના આધાર વેરીફાઈ થઈ ગયા છે પણ બંને નામના સ્પેલિંગમાં મોટો તફાવત છે.
+    ૪. **MBU Pending:** જે બાળકોનું MBU (Mobile/Biometric Update) પેન્ડિંગ છે.
+    ૫. **આધાર કાર્ડની વિગત નથી તેવા વિદ્યાર્થીઓ:** જેમની આધાર કાર્ડની વિગત હજુ સુધી ભરેલી જ નથી.
+    ૬. **આધાર Verification Failed:** જે બાળકોનું આધાર વેરીફીકેશન ફેલ થયું છે અને માહિતી સુધારવાની જરૂર છે.
+    ૭. **સ્પેલિંગમાં ૧ અક્ષરની ભૂલ હોય તેવા વિદ્યાર્થીઓની યાદી:** જેમનાં નામમાં માત્ર એક જ અક્ષરની ભૂલ છે, જે શાળા કક્ષાએ સહેલાઈથી સુધારી શકાશે.
     """)
 
 st.write("તમારી ડાઉનલોડ કરેલી સ્ટુડન્ટ ડેટાની એક્સેલ ફાઈલ નીચે અપલોડ કરો અને અલગ-અલગ રિપોર્ટ્સ મેળવો.")
@@ -96,7 +88,6 @@ uploaded_file = st.file_uploader("અહીં એક્સેલ ફાઈલ (
 if uploaded_file is not None:
     try:
         with st.spinner('ફાઈલ પ્રોસેસ થઈ રહી છે... કૃપા કરીને રાહ જુઓ...'):
-            # ફાઈલ રીડ કરવી
             df = pd.read_excel(uploaded_file, skiprows=2)
             
             # --- 🛑 ERROR VALIDATION ---
@@ -111,7 +102,6 @@ if uploaded_file is not None:
                 st.info("💡 કૃપા કરીને ઉપર આપેલી સૂચના મુજબ UDISE પોર્ટલમાંથી સાચી 'List of All Students' ની ફાઈલ જ અપલોડ કરો.")
                 st.stop()
 
-            # ડેટા ક્લીનિંગ
             df['Name_clean'] = df['Name'].apply(clean_str)
             df['AADHAAR_Name_clean'] = df['Name As per AADHAAR'].apply(clean_str)
             
@@ -119,54 +109,41 @@ if uploaded_file is not None:
             is_verified = aadhaar_status == 'VERIFIED'
             same_name = df['Name_clean'] == df['AADHAAR_Name_clean']
             
-            # આગળ-પાછળ નામ ચેક કરવું
             is_swapped_series = df.apply(lambda row: is_name_swapped(row['Name_clean'], row['AADHAAR_Name_clean']), axis=1)
-            
-            # નવું લોજીક એપ્લાય કરવું: 1 અક્ષરનો ફેરફાર
             is_one_char_diff_series = df.apply(lambda row: is_one_char_diff(row['Name_clean'], row['AADHAAR_Name_clean']), axis=1)
             
-            # 1. Report: APAAR Pending
             apaar_pending_status = ['NA', 'NOT AVAILABLE', 'NAN', 'REQUESTED', 'PENDING']
             apaar_pending = df['APAAR Status'].isna() | df['APAAR Status'].astype(str).str.strip().str.upper().isin(apaar_pending_status)
+            
             df_report1 = df[is_verified & apaar_pending & same_name]
-            
-            # 2. Report: Name Swapped
             df_report2 = df[is_verified & is_swapped_series & ~same_name]
-            
-            # 3. Report: Verified Mismatch 
             df_report3 = df[is_verified & (df['Name_clean'] != df['AADHAAR_Name_clean']) & ~is_swapped_series & ~is_one_char_diff_series]
             
-            # 4. Report: MBU Pending
             mbu_statuses = ['MBU PENDING (AGE 5-15)', 'MBU PENDING (AGE 15 AND ABOVE)']
             df_report4 = df[df['MBU Status'].astype(str).str.strip().str.upper().isin(mbu_statuses)]
-            
-            # 5. Report: AADHAAR not available
             df_report5 = df[aadhaar_status == 'AADHAAR NOT AVAILABLE']
-            
-            # 6. Report: Validation failed
             df_report6 = df[aadhaar_status == 'VALIDATION FAILED']
-
-            # 7. (NEW) Report: 1 Character Spelling Mistake
             df_report7 = df[is_verified & is_one_char_diff_series & ~same_name & ~is_swapped_series]
 
         st.success("✅ રિપોર્ટ્સ સફળતાપૂર્વક જનરેટ થઈ ગયા છે!")
         
         # --- Summary Section ---
-        st.header("📊 Report Summary")
+        # (અહીં ટાઇટલ થોડા ટૂંકા રાખ્યા છે જેથી બોક્સમાં કપાઈ ન જાય, પૂરા નામ નીચે ડાઉનલોડમાં આવશે)
+        st.header("📊 રિપોર્ટ સમરી (વિદ્યાર્થીઓની સંખ્યા)")
         
         col1, col2, col3 = st.columns(3)
         col1.metric("કુલ વિદ્યાર્થીઓ", len(df))
-        col2.metric("1. APAAR Pending", len(df_report1))
-        col3.metric("2. નામ/અટક બદલ", len(df_report2))
+        col2.metric("૧. નામ સમાન, APAAR Pending", len(df_report1))
+        col3.metric("૨. નામ/અટક આગળ-પાછળ", len(df_report2))
         
         col4, col5, col6 = st.columns(3)
-        col4.metric("3. Verified મિસમેચ", len(df_report3))
-        col5.metric("4. MBU Pending", len(df_report4))
-        col6.metric("5. આધાર Not Avl.", len(df_report5))
+        col4.metric("૩. Verified પણ નામમાં સુધારો", len(df_report3))
+        col5.metric("૪. MBU Pending", len(df_report4))
+        col6.metric("૫. આધાર વિગત નથી", len(df_report5))
         
         col7, col8, col9 = st.columns(3)
-        col7.metric("6. Validation Failed", len(df_report6))
-        col8.metric("7. 1 અક્ષરની ભૂલ", len(df_report7))
+        col7.metric("૬. આધાર Verification Failed", len(df_report6))
+        col8.metric("૭. સ્પેલિંગમાં ૧ અક્ષરની ભૂલ", len(df_report7))
         
         st.divider()
 
@@ -189,20 +166,20 @@ if uploaded_file is not None:
                         key=file_name 
                     )
 
-        display_report_row("1. APAAR Pending + સમાન નામ", len(df_report1), "UDISE અને આધારમાં સમાન નામ છે પણ APAAR ID જનરેટ કરવાના બાકી (Pending) છે. આ બાળકોનું તરત જ APAAR ID Generate થઈ જશે એટલે તાત્કાલિક જનરેટ કરી દેવું.", df_report1, "1_APAAR_Pending_Same_Name.xlsx")
+        # તમે આપેલા પૂરા નામો અહીં ડાઉનલોડ સેક્શનમાં મૂક્યા છે:
+        display_report_row("૧. નામ સમાન પણ APAAR Pending તેવા વિદ્યાર્થીઓ", len(df_report1), "UDISE અને આધારમાં સમાન નામ છે પણ APAAR ID જનરેટ કરવાના બાકી (Pending) છે. આ બાળકોનું તરત જ APAAR ID Generate થઈ જશે એટલે તાત્કાલિક જનરેટ કરી દેવું.", df_report1, "1_APAAR_Pending_Same_Name.xlsx")
         
-        display_report_row("2. નામ અને અટક આગળ-પાછળ", len(df_report2), "આ બાળકોના નામ સુધારવા માટે શાળા કક્ષાએ 'Update student Name' પર ક્લિક કરી કામ કરવું.", df_report2, "2_Name_Swapped.xlsx")
+        display_report_row("૨. નામ અને અટક આગળ પાછળ થઈ શકે તેવા વિદ્યાર્થીઓ", len(df_report2), "આ બાળકોના નામ સુધારવા માટે શાળા કક્ષાએ 'Update student Name' પર ક્લિક કરી કામ કરવું.", df_report2, "2_Name_Swapped.xlsx")
         
-        display_report_row("3. Verified પણ મોટો નામ મિસમેચ", len(df_report3), "આધાર Verify થઈ ગયેલ છે, પણ UDISE માં જે નામ છે તે સુધારવાની જરૂર છે. આવા બાળકોની માહિતી તૈયાર રાખવી, જેને BRC ભવન પર સુધારો કરી શકાશે.", df_report3, "3_Verified_Name_Mismatch.xlsx")
+        display_report_row("૩. આધાર Verified છે પણ નામમાં સુધારો કરવાનો છે તેવા વિદ્યાર્થીઓ", len(df_report3), "આધાર Verify થઈ ગયેલ છે, પણ UDISE માં જે નામ છે તે સુધારવાની જરૂર છે. આવા બાળકોની માહિતી તૈયાર રાખવી, જેને BRC ભવન પર સુધારો કરી શકાશે.", df_report3, "3_Verified_Name_Mismatch.xlsx")
         
-        display_report_row("4. MBU Pending", len(df_report4), "આ બાળકોના ડેટાને Revalidate કરવાની જરૂર છે. અને રીવેલિડેટ કર્યા પછી પણ પેન્ડિંગ આવે તો આ બાળકને આધાર સેન્ટર પર જઈ એક વાર અપડેટ કરાવવું પડશે.", df_report4, "4_MBU_Pending.xlsx")
+        display_report_row("૪. MBU Pending તેવા વિદ્યાર્થીઓ", len(df_report4), "આ બાળકોના ડેટાને Revalidate કરવાની જરૂર છે. અને રીવેલિડેટ કર્યા પછી પણ પેન્ડિંગ આવે તો આ બાળકને આધાર સેન્ટર પર જઈ એક વાર અપડેટ કરાવવું પડશે.", df_report4, "4_MBU_Pending.xlsx")
         
-        display_report_row("5. આધાર Not Available", len(df_report5), "આ બાળકોની આધાર કાર્ડની વિગત ભરવાની બાકી છે. આવા બાળકની વિગત મંગાવીને આ વિગત તાત્કાલિક ભરી દેવી.", df_report5, "5_Aadhaar_Not_Available.xlsx")
+        display_report_row("૫. આધાર કાર્ડની વિગત નથી તેવા વિદ્યાર્થીઓ", len(df_report5), "આ બાળકોની આધાર કાર્ડની વિગત ભરવાની બાકી છે. આવા બાળકની વિગત મંગાવીને આ વિગત તાત્કાલિક ભરી દેવી.", df_report5, "5_Aadhaar_Not_Available.xlsx")
         
-        display_report_row("6. Validation Failed", len(df_report6), "આ બાળકોનું 'Name as per AADHAAR' ખોટું છે. સાચું અને લેટેસ્ટ આધાર કાર્ડ મંગાવી માહિતી સુધારવાની છે.", df_report6, "6_Validation_Failed.xlsx")
+        display_report_row("૬. આધાર Verification Failed તેવા વિદ્યાર્થીઓ", len(df_report6), "આ બાળકોનું 'Name as per AADHAAR' ખોટું છે. સાચું અને લેટેસ્ટ આધાર કાર્ડ મંગાવી માહિતી સુધારવાની છે.", df_report6, "6_Validation_Failed.xlsx")
         
-        # --- નવો રિપોર્ટ સૌથી છેલ્લે (7 માં ક્રમે) મૂક્યો છે ---
-        display_report_row("7. સ્પેલિંગમાં સામાન્ય (૧ અક્ષરની) ભૂલ", len(df_report7), "આ બાળકોના નામમાં માત્ર 1 જ અક્ષરનો ફેરફાર છે (દા.ત. અક્ષર રહી ગયો હોય કે ખોટો હોય). UDISE માં સામાન્ય સુધારો કરવાથી બંને નામ સમાન થઈ જશે.", df_report7, "7_One_Char_Spelling_Mistake.xlsx")
+        display_report_row("૭. સ્પેલિંગમાં ૧ અક્ષરની ભૂલ હોય તેવા વિદ્યાર્થીઓની યાદી", len(df_report7), "આ બાળકોના નામમાં માત્ર 1 જ અક્ષરનો ફેરફાર છે (દા.ત. અક્ષર રહી ગયો હોય કે ખોટો હોય). UDISE માં સામાન્ય સુધારો કરવાથી બંને નામ સમાન થઈ જશે.", df_report7, "7_One_Char_Spelling_Mistake.xlsx")
         
     except Exception as e:
         st.error(f"ફાઈલ પ્રોસેસ કરવામાં અણધારી ભૂલ આવી. કૃપા કરીને ફાઈલ ચેક કરો. Error: {e}")
