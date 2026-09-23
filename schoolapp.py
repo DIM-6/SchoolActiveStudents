@@ -127,23 +127,36 @@ if uploaded_file is not None:
 
         st.success("✅ રિપોર્ટ્સ સફળતાપૂર્વક જનરેટ થઈ ગયા છે!")
         
-        # --- Summary Section ---
-        # (અહીં ટાઇટલ થોડા ટૂંકા રાખ્યા છે જેથી બોક્સમાં કપાઈ ન જાય, પૂરા નામ નીચે ડાઉનલોડમાં આવશે)
-        st.header("📊 રિપોર્ટ સમરી (વિદ્યાર્થીઓની સંખ્યા)")
+        # --- Summary Section (TABLE સ્વરૂપે) ---
+        st.header("📊 રિપોર્ટ સમરી")
         
-        col1, col2, col3 = st.columns(3)
-        col1.metric("કુલ વિદ્યાર્થીઓ", len(df))
-        col2.metric("૧. નામ સમાન, APAAR Pending", len(df_report1))
-        col3.metric("૨. નામ/અટક આગળ-પાછળ", len(df_report2))
+        # સમરીનો ડેટા તૈયાર કરવો
+        summary_data = {
+            "રિપોર્ટનું નામ": [
+                "કુલ વિદ્યાર્થીઓ (Total Students)",
+                "૧. નામ સમાન પણ APAAR Pending તેવા વિદ્યાર્થીઓ",
+                "૨. નામ અને અટક આગળ પાછળ થઈ શકે તેવા વિદ્યાર્થીઓ",
+                "૩. આધાર Verified છે પણ નામમાં સુધારો કરવાનો છે તેવા વિદ્યાર્થીઓ",
+                "૪. MBU Pending તેવા વિદ્યાર્થીઓ",
+                "૫. આધાર કાર્ડની વિગત નથી તેવા વિદ્યાર્થીઓ",
+                "૬. આધાર Verification Failed તેવા વિદ્યાર્થીઓ",
+                "૭. સ્પેલિંગમાં ૧ અક્ષરની ભૂલ હોય તેવા વિદ્યાર્થીઓની યાદી"
+            ],
+            "વિદ્યાર્થીઓની સંખ્યા": [
+                len(df),
+                len(df_report1),
+                len(df_report2),
+                len(df_report3),
+                len(df_report4),
+                len(df_report5),
+                len(df_report6),
+                len(df_report7)
+            ]
+        }
         
-        col4, col5, col6 = st.columns(3)
-        col4.metric("૩. Verified પણ નામમાં સુધારો", len(df_report3))
-        col5.metric("૪. MBU Pending", len(df_report4))
-        col6.metric("૫. આધાર વિગત નથી", len(df_report5))
-        
-        col7, col8, col9 = st.columns(3)
-        col7.metric("૬. આધાર Verification Failed", len(df_report6))
-        col8.metric("૭. સ્પેલિંગમાં ૧ અક્ષરની ભૂલ", len(df_report7))
+        # ડેટાફ્રેમ બનાવીને ટેબલ બતાવવું
+        summary_df = pd.DataFrame(summary_data)
+        st.table(summary_df)  # st.table થી એકદમ ક્લિન અને વ્યવસ્થિત ટેબલ દેખાશે
         
         st.divider()
 
@@ -166,7 +179,6 @@ if uploaded_file is not None:
                         key=file_name 
                     )
 
-        # તમે આપેલા પૂરા નામો અહીં ડાઉનલોડ સેક્શનમાં મૂક્યા છે:
         display_report_row("૧. નામ સમાન પણ APAAR Pending તેવા વિદ્યાર્થીઓ", len(df_report1), "UDISE અને આધારમાં સમાન નામ છે પણ APAAR ID જનરેટ કરવાના બાકી (Pending) છે. આ બાળકોનું તરત જ APAAR ID Generate થઈ જશે એટલે તાત્કાલિક જનરેટ કરી દેવું.", df_report1, "1_APAAR_Pending_Same_Name.xlsx")
         
         display_report_row("૨. નામ અને અટક આગળ પાછળ થઈ શકે તેવા વિદ્યાર્થીઓ", len(df_report2), "આ બાળકોના નામ સુધારવા માટે શાળા કક્ષાએ 'Update student Name' પર ક્લિક કરી કામ કરવું.", df_report2, "2_Name_Swapped.xlsx")
