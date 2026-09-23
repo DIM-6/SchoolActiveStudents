@@ -23,23 +23,18 @@ def is_one_char_diff(name1, name2):
     if not name1 or not name2 or name1 == name2: return False
     
     len1, len2 = len(name1), len(name2)
-    # જો 1 થી વધારે અક્ષરની લંબાઈનો ફેરફાર હોય તો સીધું False
     if abs(len1 - len2) > 1: return False 
     
     if len1 == len2:
-        # માત્ર 1 અક્ષર બદલાયો હોય (Substitution) - દા.ત. KUMAR અને KUMER
         diff_count = sum(1 for a, b in zip(name1, name2) if a != b)
         return diff_count == 1
     else:
-        # કોઈ 1 અક્ષર વધારાનો આવી ગયો હોય કે રહી ગયો હોય (Insertion/Deletion)
         if len1 > len2:
-            name1, name2 = name2, name1 # name1 હંમેશા નાનું રહે તે માટે
+            name1, name2 = name2, name1
         
         i = 0
         while i < len(name1) and name1[i] == name2[i]:
             i += 1
-        
-        # જો માત્ર એ જ એક અક્ષર છોડીને બાકીનું બધું સમાન હોય
         return name1[i:] == name2[i+1:]
 
 def convert_df_to_excel(df):
@@ -60,6 +55,7 @@ st.markdown("""
     .instruction-box { background-color: #e8f4f8; border-left: 5px solid #17a2b8; padding: 15px; border-radius: 5px; margin-bottom: 20px;}
     .instruction-box h4 { margin-top: 0; color: #0c5460; font-weight: bold;}
     .instruction-box ol { margin-bottom: 0; font-size: 16px; color: #0c5460; line-height: 1.6;}
+    .report-info-box { background-color: #fff3cd; border-left: 5px solid #ffc107; padding: 15px; border-radius: 5px; margin-bottom: 20px;}
 </style>
 """, unsafe_allow_html=True)
 
@@ -78,6 +74,20 @@ st.markdown("""
     </ol>
 </div>
 """, unsafe_allow_html=True)
+
+# --- ક્યા રિપોર્ટ મળશે તેની માહિતી (વિસ્તૃત સમજૂતી) ---
+with st.expander("ℹ️ આ ટૂલની મદદથી તમને કયા ૭ રિપોર્ટ્સ મળશે? (અહીં ક્લિક કરો)"):
+    st.markdown("""
+    **આ ટૂલ તમારો સમય બચાવવા માટે નીચે મુજબના ૭ અલગ-અલગ રિપોર્ટ આપોઆપ જનરેટ કરશે:**
+    
+    1. **APAAR Pending:** એવા બાળકો જેમનું UDISE અને આધાર કાર્ડ બંનેમાં નામ બિલકુલ સમાન છે, પરંતુ તેમનું APAAR ID જનરેટ થવાનું બાકી છે. (આ સૌથી સહેલું કામ છે).
+    2. **નામ/અટક બદલ (Name Swapped):** એવા બાળકો જેમનું નામ અને અટક આધાર કાર્ડ અને UDISE માં આગળ-પાછળ થઈ ગયા છે. (દા.ત. પટેલ રાહુલ ની જગ્યાએ રાહુલ પટેલ).
+    3. **Verified પણ મોટો નામ મિસમેચ:** જેમનું આધાર કાર્ડ Verify તો થઈ ગયું છે, પણ બંને નામના સ્પેલિંગમાં મોટો તફાવત છે (જે BRC કક્ષાએથી સુધારવા પડે).
+    4. **MBU Pending:** જે બાળકોનું MBU (Mobile/Biometric Update) પેન્ડિંગ છે અને ડેટા Revalidate કરવાની જરૂર છે.
+    5. **આધાર Not Available:** એવા બાળકો જેમની આધાર કાર્ડની વિગત UDISE પોર્ટલ પર હજુ સુધી ભરેલી જ નથી.
+    6. **Validation Failed:** જે બાળકોનું આધાર વેરીફીકેશન ફેલ થયું છે અને જેમનું નવું આધાર કાર્ડ મંગાવી માહિતી સુધારવાની જરૂર છે.
+    7. **સ્પેલિંગમાં સામાન્ય (૧ અક્ષરની) ભૂલ:** એવા બાળકો જેમનાં નામમાં માત્ર એક જ અક્ષર (character) ની ભૂલ છે, જે UDISE માં શાળા કક્ષાએ સહેલાઈથી સુધારી શકાશે.
+    """)
 
 st.write("તમારી ડાઉનલોડ કરેલી સ્ટુડન્ટ ડેટાની એક્સેલ ફાઈલ નીચે અપલોડ કરો અને અલગ-અલગ રિપોર્ટ્સ મેળવો.")
 
@@ -123,12 +133,7 @@ if uploaded_file is not None:
             # 2. Report: Name Swapped
             df_report2 = df[is_verified & is_swapped_series & ~same_name]
             
-            # 7. (NEW) Report: 1 Character Spelling Mistake
-            # (જે બાળકોના નામમાં 1 અક્ષરની ભૂલ છે, અને તે swapped નથી)
-            df_report7 = df[is_verified & is_one_char_diff_series & ~same_name & ~is_swapped_series]
-            
             # 3. Report: Verified Mismatch 
-            # (જેમાં swapped કે 1 અક્ષરની ભૂલ સિવાયના મોટા મિસમેચ છે)
             df_report3 = df[is_verified & (df['Name_clean'] != df['AADHAAR_Name_clean']) & ~is_swapped_series & ~is_one_char_diff_series]
             
             # 4. Report: MBU Pending
@@ -141,12 +146,14 @@ if uploaded_file is not None:
             # 6. Report: Validation failed
             df_report6 = df[aadhaar_status == 'VALIDATION FAILED']
 
+            # 7. (NEW) Report: 1 Character Spelling Mistake
+            df_report7 = df[is_verified & is_one_char_diff_series & ~same_name & ~is_swapped_series]
+
         st.success("✅ રિપોર્ટ્સ સફળતાપૂર્વક જનરેટ થઈ ગયા છે!")
         
         # --- Summary Section ---
         st.header("📊 Report Summary")
         
-        # 3 હરોળ (Rows) માં Summary બતાવીશું જેથી નવો રિપોર્ટ સમાઈ જાય
         col1, col2, col3 = st.columns(3)
         col1.metric("કુલ વિદ્યાર્થીઓ", len(df))
         col2.metric("1. APAAR Pending", len(df_report1))
@@ -159,7 +166,7 @@ if uploaded_file is not None:
         
         col7, col8, col9 = st.columns(3)
         col7.metric("6. Validation Failed", len(df_report6))
-        col8.metric("7. 1 અક્ષરની ભૂલ", len(df_report7)) # નવો રિપોર્ટ અહીં બતાવશે
+        col8.metric("7. 1 અક્ષરની ભૂલ", len(df_report7))
         
         st.divider()
 
@@ -186,10 +193,6 @@ if uploaded_file is not None:
         
         display_report_row("2. નામ અને અટક આગળ-પાછળ", len(df_report2), "આ બાળકોના નામ સુધારવા માટે શાળા કક્ષાએ 'Update student Name' પર ક્લિક કરી કામ કરવું.", df_report2, "2_Name_Swapped.xlsx")
         
-        # --- નવો રિપોર્ટ અહીં ઉમેર્યો છે ---
-        display_report_row("7. સ્પેલિંગમાં સામાન્ય (૧ અક્ષરની) ભૂલ", len(df_report7), "આ બાળકોના નામમાં માત્ર 1 જ અક્ષરનો ફેરફાર છે (દા.ત. અક્ષર રહી ગયો હોય કે ખોટો હોય). UDISE માં સામાન્ય સુધારો કરવાથી બંને નામ સમાન થઈ જશે.", df_report7, "7_One_Char_Spelling_Mistake.xlsx")
-        # ------------------------------------
-
         display_report_row("3. Verified પણ મોટો નામ મિસમેચ", len(df_report3), "આધાર Verify થઈ ગયેલ છે, પણ UDISE માં જે નામ છે તે સુધારવાની જરૂર છે. આવા બાળકોની માહિતી તૈયાર રાખવી, જેને BRC ભવન પર સુધારો કરી શકાશે.", df_report3, "3_Verified_Name_Mismatch.xlsx")
         
         display_report_row("4. MBU Pending", len(df_report4), "આ બાળકોના ડેટાને Revalidate કરવાની જરૂર છે. અને રીવેલિડેટ કર્યા પછી પણ પેન્ડિંગ આવે તો આ બાળકને આધાર સેન્ટર પર જઈ એક વાર અપડેટ કરાવવું પડશે.", df_report4, "4_MBU_Pending.xlsx")
@@ -197,6 +200,9 @@ if uploaded_file is not None:
         display_report_row("5. આધાર Not Available", len(df_report5), "આ બાળકોની આધાર કાર્ડની વિગત ભરવાની બાકી છે. આવા બાળકની વિગત મંગાવીને આ વિગત તાત્કાલિક ભરી દેવી.", df_report5, "5_Aadhaar_Not_Available.xlsx")
         
         display_report_row("6. Validation Failed", len(df_report6), "આ બાળકોનું 'Name as per AADHAAR' ખોટું છે. સાચું અને લેટેસ્ટ આધાર કાર્ડ મંગાવી માહિતી સુધારવાની છે.", df_report6, "6_Validation_Failed.xlsx")
+        
+        # --- નવો રિપોર્ટ સૌથી છેલ્લે (7 માં ક્રમે) મૂક્યો છે ---
+        display_report_row("7. સ્પેલિંગમાં સામાન્ય (૧ અક્ષરની) ભૂલ", len(df_report7), "આ બાળકોના નામમાં માત્ર 1 જ અક્ષરનો ફેરફાર છે (દા.ત. અક્ષર રહી ગયો હોય કે ખોટો હોય). UDISE માં સામાન્ય સુધારો કરવાથી બંને નામ સમાન થઈ જશે.", df_report7, "7_One_Char_Spelling_Mistake.xlsx")
         
     except Exception as e:
         st.error(f"ફાઈલ પ્રોસેસ કરવામાં અણધારી ભૂલ આવી. કૃપા કરીને ફાઈલ ચેક કરો. Error: {e}")
